@@ -31,7 +31,7 @@ class SelfAttention(nn.Module):
 
         energy = torch.einsum("nqhd,nkhd->nhqk", [queries, keys])
 
-        if mask:
+        if mask is not None:
             energy = energy.masked_fill(mask == 0, float('-1e20'))
 
         attention = torch.softmax(energy / (self.embed_size ** 0.5), dim=3)
@@ -52,7 +52,7 @@ class TransformBlock(nn.Module):
 
         self.feed_forward = nn.Sequential(
             nn.Linear(embed_size, forward_expansion * embed_size),
-            nn.Relu(),
+            nn.ReLU(),
             nn.Linear(forward_expansion * embed_size, embed_size)
         )
         self.dropout = nn.Dropout(dropout)
@@ -177,7 +177,7 @@ class Transformer(nn.Module):
             forward_expansion=4,
             heads=8,
             dropout=0,
-            device='cuda',
+            device='cpu',
             max_length=100
     ):
         super(Transformer, self).__init__()
